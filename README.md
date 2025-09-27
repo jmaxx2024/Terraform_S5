@@ -133,4 +133,5 @@ Este proyecto sigue la Conventional Commits para mantener un historial limpio:
 
 # Arquitectura
 La siguiente imagen representa la arquitectura del entorno desplegado:
-<img width="772" height="575" alt="Image" src="https://github.com/user-attachments/assets/341f6b2d-ef8b-4810-be49-4ecda438403a" />
+<img width="450" height="450" alt="image" src="https://github.com/user-attachments/assets/85b54bcf-d40a-44ce-9318-9a2c76de7aab" />
+
