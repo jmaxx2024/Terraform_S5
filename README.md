@@ -8,43 +8,57 @@
 - VILLAJULCA QUISPE, DIEGO ALONSO
 - BENJAMIN REYES, LUIS
 
-Este repositorio contiene la configuración de infraestructura como código (IaC) para desplegar un entorno de desarrollo (DEV) utilizando Terraform y Docker.
+Este proyecto despliega un **entorno de desarrollo Ansible + NGINX ** usando **Terraform** y **Docker**.
+
+Tambien implementa un entorno de aplicaciones Docker con **Terraform** y **Ansible**, donde se despliegan tres aplicaciones basadas en NGINX y un **proxy inverso NGINX** que actúa como **balanceador de carga Round Robin**.
 
 ## Servicios incluidos
 - 3 Apps (Nginx)
+- Proxy inverso (Nginx, puerto 8000)
 - Redis
 - PostgreSQL
-- Grafana - puerto: 3000
+- Grafana (puerto 8085)
 
 Todo el despliegue está contenido en código y versionado en este repositorio.
 
 ## Estructura del proyecto
 
 ```bash
-Terraform_Docker/
-├── README.md              # Leeme
-├── grafana.tf             # feat: Creando contenedor Docker para Grafana
-├── main.tf                # feat: Estructura base
-├── network.tf             # feat: Crear redes Docker para app, persistence y monitoreo
-├── nginx.tf               # feat:Modificando el archivo y agregando los dos contenedores nginx (app2 y app3)
-├── persistence.tf         # fear: Agregar contenedores Docker para postgre y redis
-├── terraform.tfvars       # feat: Agregar variables de puertos para las aplicaciones nginx, redis, postgres, redis
-└── variables.tf           # feat: Declarando las variables para nginx, redis, postgres, grafana
+Terraform_Deploy/
+├── ansible/
+├── files/
+│ │ └── index.html # Página web estática
+│ ├── templates/
+│ │ └── nginx.conf          # Configuración del proxy NGINX
+│ ├── inventory.ini         # Inventario de Ansible
+│ └── playbook.yaml         # Playbook para configurar proxy y web              
+├── apps.tf                 # Aplicaciones dummy basadas en nginx
+├── database.tf             # Bases de datos PostgreSQL y Redis
+├── main.tf                 # Configuración principal
+├── monitoring.tf           # Servicio de Grafana
+├── networks.tf             # Redes de Docker
+├── apps.tf                 # Aplicaciones dummy basadas en nginx
+├── database.tf             # Bases de datos PostgreSQL y Redis
+├── main.tf                 # Configuración principal
+├── monitoring.tf           # Servicio de Grafana
+├── networks.tf             # Redes de Docker
+├── outputs.tf              # Salidas útiles (ej: conexión a la DB)
+├── terraform.tfvars        # Valores por defecto de las variables
+└── variables.tf            # Variables reutilizables
 ```
 
 ## Requisitos
 Antes de comenzar, asegúrate de tener:
 - Docker instalado
-- Terraform v1.13.2
-  on windows_amd64
+- Terraform >= 1.5
 - Git
 
 # Instrucciones de despliegue
 ## 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/jmaxx2024/Terraform__Docker.git
-cd Terraform__Docker
+git clone https://github.com/AndreToral/Terraform_Deploy.git
+cd Terraform_Deploy
 ```
 
 ## 2. Inicializar Terraform
@@ -55,72 +69,49 @@ terraform init
 
 ## 3. Revisar las variables
 
-Puedes personalizar ```terraform.tfvars``` para definir los puertos internos y externos de diferentes apps.
-
-Puedes personalizar ```variables.tf``` para definir usuario/contraseña de PostgreSQL, etc.
+Puedes personalizar ```terraform.tfvars``` para definir usuario/contraseña de PostgreSQL, etc.
 
 ## 4. Aplicar el despliegue
-plan: Muestra un plan de ejecución.
+
 ```bash
-terraform plan
+terraform apply -auto-approve
 ```
-appy: Aplica los cambios del plan y despliega la infraestructura.
+
+## 5. Ver salidas útiles
+
 ```bash
-terraform apply
-```
-destroy: Destruye todo lo que Terraform creó en el workspace actual.
-```bash
-terraform destroy
+terraform output
 ```
 
 ## 6. Acceder a los servicios
+- Grafana: http://localhost:3000
+- Usuario_Grafana: ```admin``` | Password: ```admin```
+- Apps: disponibles en los puertos configurados en ```apps.tf```
 
-# Accede a Grafana
-En tu navegador:
-```bas
-hhttp://localhost:3000
+## 7. Validación (Balanceador)
+
+## 7.1. Configurar proxy y página web en Ansible
+```bash
+cd ../ansible
+ansible-playbook -i inventory.ini playbook.yaml
 ```
 
-Usuario/contraseña por defecto:
-
-user: admin
-
-password: admin
-
-Al entrar, Grafana te pedirá cambiar la contraseña, sigue el proceso.
-
-# Verifica los contenedores activos
+## 7.2. Acceder a la web estática:
 ```bash
-docker ps
+curl http://localhost:8080/web
 ```
+Muestra ```Bienvenidos al Laboratorio N°4```
 
-# Accede a NGINX
+## 7.3. Acceder al backend balanceado:
+
 ```bash
-http://localhost:8081
-
-http://localhost:8082
-
-http://localhost:8083
+curl http://localhost:8080/api
 ```
-
-# Accede a PostgreSQL
-
-Conéctate usando un cliente, ejemplo: psql o DBeaver en:
-
-Host: localhost
-
-Puerto: 5432
-
-Usuario: postgres
-
-Contraseña: contrasena123456
-
-# Accede a Redis
-
-  Es necesario que tengas instalado el CLI de Redis y ejecuta
-
+Responde en round robin:
 ```bash
-redis-cli -h localhost -p 6379
+HELLO WORLD 1
+HELLO WORLD 2
+HELLO WORLD 3
 ```
 
 # Destruir el entorno
@@ -130,6 +121,16 @@ Cuando ya no necesites el entorno de desarrollo, simplemente ejecuta:
 terraform destroy -auto-approve
 ```
 
-# Arquitectura del despliegue
+# Convenciones de commits
+Este proyecto sigue la Conventional Commits para mantener un historial limpio:
+- ```feat:``` ➝ Nueva funcionalidad (ej: ```feat(apps): agregar App1 conectada a PostgreSQL```)
+- ```fix:``` ➝ Corrección de errores
+- ```chore:``` ➝ Cambios menores o mantenimiento
+- ```docs:``` ➝ Documentación
+- ```refactor:``` ➝ Refactorización de código sin cambio funcional
+- ```style:``` ➝ Cambios de formato (no afectan lógica)
+- ```test:``` ➝ Añadir o modificar pruebas
+
+# Arquitectura
 La siguiente imagen representa la arquitectura del entorno desplegado:
 <img width="772" height="575" alt="Image" src="https://github.com/user-attachments/assets/341f6b2d-ef8b-4810-be49-4ecda438403a" />
