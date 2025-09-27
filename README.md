@@ -84,7 +84,7 @@ terraform output
 ```
 
 ## 6. Acceder a los servicios
-- Grafana: http://localhost:3000
+- Grafana: http://localhost:8085
 - Usuario_Grafana: ```admin``` | Password: ```admin```
 - Apps: disponibles en los puertos configurados en ```apps.tf```
 
@@ -98,7 +98,7 @@ ansible-playbook -i inventory.ini playbook.yaml
 
 ## 7.2. Acceder a la web estática:
 ```bash
-curl http://localhost:8080/web
+curl http://localhost:3000/web
 ```
 Muestra ```Bienvenidos este es el laboratorio N°4```
 
