@@ -57,8 +57,8 @@ Antes de comenzar, asegúrate de tener:
 ## 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/AndreToral/Terraform_Deploy.git
-cd Terraform_Deploy
+git clone https://github.com/jmaxx2024/Terraform__Docker.git
+cd Terraform_S5
 ```
 
 ## 2. Inicializar Terraform
@@ -100,7 +100,7 @@ ansible-playbook -i inventory.ini playbook.yaml
 ```bash
 curl http://localhost:8080/web
 ```
-Muestra ```Bienvenidos al Laboratorio N°4```
+Muestra ```Bienvenidos este es el laboratorio N°4```
 
 ## 7.3. Acceder al backend balanceado:
 
